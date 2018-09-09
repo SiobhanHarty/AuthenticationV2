@@ -38,27 +38,37 @@ module.exports.createUser = function(newUser, callback)
         bcrypt.hash(newUser.password, salt, function(err, hash)
         {
             newUser.password = hash;
+            console.log( newUser.password );
+            bcrypt.genSalt(10, function(err, salt)
+            {
+                bcrypt.hash(newUser.email, salt, function(err, hash)
+                {
+                    newUser.email = hash;
+                    newUser.save(callback);
+
+                });
+            });
         });
 
-    });
-
-    bcrypt.genSalt(10, function(err, salt)
-    {
-        bcrypt.hash(newUser.email, salt, function(err, hash)
-        {
-            newUser.email = hash;
-            newUser.save(callback);
-        });
     });
 
 }
 
+module.exports.comparePassword = function(candidatePassword, hash, callback){
+	bcrypt.compare(candidatePassword, hash, function(err, isMatch) {
+    	if(err) throw err;
+    	callback(null, isMatch);
+	});
+
+}
+
 module.exports.getUserByUsername = function(username, callback){
-
-  console.log( 'Searcning for  ' + username );
-  var query = {username: username};
+	var query = {username: username};
 	User.findOne(query, callback);
+}
 
+module.exports.getUserById = function(id, callback){
+	User.findById(id, callback);
 }
 
 
